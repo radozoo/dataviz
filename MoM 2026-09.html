@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trump Approval: One Year In</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #ede9e3;
+      font-family: 'Inter', system-ui, sans-serif;
+      display: flex;
+      justify-content: center;
+      padding: 52px 20px 72px;
+      min-height: 100vh;
+    }
+
+    .card {
+      background: #fff;
+      max-width: 760px;
+      width: 100%;
+      padding: 48px 52px 40px;
+      box-shadow: 0 6px 40px rgba(0,0,0,0.10);
+    }
+
+    .kicker {
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #bf3226;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      font-size: 22px;
+      font-weight: 700;
+      line-height: 1.28;
+      color: #14090B;
+      margin-bottom: 11px;
+      max-width: 480px;
+    }
+
+    .subhead {
+      font-size: 13.5px;
+      color: #595959;
+      line-height: 1.65;
+      margin-bottom: 30px;
+      max-width: 510px;
+    }
+
+    .legend {
+      display: flex;
+      gap: 22px;
+      margin-bottom: 6px;
+      font-size: 12px;
+      color: #555;
+    }
+
+    .legend-item { display: flex; align-items: center; gap: 8px; }
+    .legend-dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
+
+    #chart { display: block; }
+
+    .source {
+      font-size: 11px;
+      color: #c0bbb4;
+      margin-top: 14px;
+      font-style: italic;
+    }
+
+    #tooltip {
+      position: fixed;
+      pointer-events: none;
+      background: rgba(18, 18, 18, 0.9);
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: 5px;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 12px;
+      line-height: 1.75;
+      opacity: 0;
+      transition: opacity 0.1s;
+      z-index: 999;
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <div class="kicker">Presidential Approval &middot; One Year In</div>
+  <h1>Trump Has Lost Support Across Every Group</h1>
+  <p class="subhead">Approval ratings fell in all 13 demographic groups between February&nbsp;2025 and February&nbsp;2026. Latino Americans and those aged&nbsp;35–49 saw the steepest drops, each falling <strong>19 percentage points</strong>.</p>
+  <div class="legend">
+    <div class="legend-item">
+      <div class="legend-dot" style="background:#3774F7;"></div>
+      <span>February 2025</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:#FF8236;"></div>
+      <span>February 2026</span>
+    </div>
+  </div>
+  <div id="chart"></div>
+  <div class="source">Source: Gallup &middot; Makeover Monday 2026 Week&nbsp;9</div>
+</div>
+
+<div id="tooltip"></div>
+
+<script>
+const data = [
+  { cat: "Overall",        group: "All Adults",       v25: 0.48, v26: 0.36 },
+  { cat: "Gender",         group: "Men",              v25: 0.54, v26: 0.40 },
+  { cat: "Gender",         group: "Women",            v25: 0.42, v26: 0.33 },
+  { cat: "Age",            group: "Age 35–49",        v25: 0.54, v26: 0.35 },
+  { cat: "Age",            group: "Age 18–34",        v25: 0.41, v26: 0.25 },
+  { cat: "Age",            group: "Age 50–64",        v25: 0.51, v26: 0.46 },
+  { cat: "Age",            group: "Age 65+",          v25: 0.45, v26: 0.42 },
+  { cat: "Race/Ethnicity", group: "Latino Americans", v25: 0.41, v26: 0.22 },
+  { cat: "Race/Ethnicity", group: "White Americans",  v25: 0.55, v26: 0.45 },
+  { cat: "Race/Ethnicity", group: "Black Americans",  v25: 0.28, v26: 0.21 },
+  { cat: "Party",          group: "Independents",     v25: 0.41, v26: 0.26 },
+  { cat: "Party",          group: "Republicans",      v25: 0.90, v26: 0.82 },
+  { cat: "Party",          group: "Democrats",        v25: 0.10, v26: 0.05 },
+];
+
+data.forEach(d => { d.chg = +(d.v26 - d.v25).toFixed(2); });
+
+// ── Layout ──────────────────────────────────────────────────────────────────
+const ROW_H  = 40;
+const GAP    = 26;   // gap between category groups
+const HDR_H  = 18;   // height of category header text
+
+let yOff = 0, prevCat = null;
+const catHeaders = [];
+
+data.forEach(d => {
+  if (d.cat !== prevCat) {
+    if (prevCat !== null) yOff += GAP;
+    if (d.cat !== "Overall") {
+      catHeaders.push({ label: d.cat, y: yOff });
+      yOff += HDR_H + 4;
+    }
+    prevCat = d.cat;
+  }
+  d.y = yOff + ROW_H / 2;
+  yOff += ROW_H;
+});
+
+const totalH = yOff;
+
+// ── Dimensions ───────────────────────────────────────────────────────────────
+const M  = { t: 6, r: 165, b: 26, l: 160 };
+const W  = 656;                          // fits card (760 – 52*2)
+const H  = totalH + M.t + M.b;
+const pw = W - M.l - M.r;               // plot width
+
+const x = d3.scaleLinear().domain([0, 1]).range([0, pw]);
+
+const fmt    = v  => `${Math.round(v  * 100)}%`;
+const fmtChg = v  => `${Math.round(v  * 100)} pp`;
+const BIG_DROP = -0.14;  // threshold for "bold red" change label
+
+// ── SVG ──────────────────────────────────────────────────────────────────────
+const svg = d3.select("#chart")
+  .append("svg")
+  .attr("viewBox", `0 0 ${W} ${H}`)
+  .attr("width",  W)
+  .attr("height", H)
+  .style("overflow", "visible");
+
+const g = svg.append("g").attr("transform", `translate(${M.l},${M.t})`);
+
+// ── Grid lines + axis labels ──────────────────────────────────────────────────
+const gridTicks = [0, 0.25, 0.5, 0.75, 1];
+
+gridTicks.forEach(v => {
+  g.append("line")
+    .attr("x1", x(v)).attr("x2", x(v))
+    .attr("y1", 0).attr("y2", totalH)
+    .attr("stroke", v === 0.5 ? "#d4d0ca" : "#eeebe6")
+    .attr("stroke-width", 1)
+    .attr("stroke-dasharray", v === 0.5 ? "4,3" : null);
+
+  g.append("text")
+    .attr("x", x(v)).attr("y", totalH + 18)
+    .attr("text-anchor", "middle")
+    .attr("fill", "#c4bfb8")
+    .attr("font-size", 10.5)
+    .attr("font-family", "Inter, system-ui, sans-serif")
+    .text(v === 0 ? "0%" : v === 1 ? "100%" : fmt(v));
+});
+
+// ── Category section headers ──────────────────────────────────────────────────
+catHeaders.forEach(c => {
+  // subtle divider line
+  g.append("line")
+    .attr("x1", -M.l).attr("x2", pw + M.r)
+    .attr("y1", c.y - 4).attr("y2", c.y - 4)
+    .attr("stroke", "#eeebe6").attr("stroke-width", 1);
+
+  g.append("text")
+    .attr("x", -M.l + 1)
+    .attr("y", c.y + 12)
+    .attr("fill", "#c4bfb8")
+    .attr("font-size", 9.5)
+    .attr("font-weight", 700)
+    .attr("font-family", "Inter, system-ui, sans-serif")
+    .attr("letter-spacing", "0.1em")
+    .text(c.label.toUpperCase());
+});
+
+// ── Tooltip ───────────────────────────────────────────────────────────────────
+const tip = d3.select("#tooltip");
+
+// ── Rows ──────────────────────────────────────────────────────────────────────
+const rows = g.selectAll(".row")
+  .data(data)
+  .join("g")
+  .attr("class", "row")
+  .attr("transform", d => `translate(0,${d.y})`)
+  .style("cursor", "default")
+  .on("mouseenter", function(event, d) {
+    // dim all other rows
+    d3.selectAll(".row").style("opacity", 0.3);
+    d3.select(this).style("opacity", 1);
+
+    tip.style("opacity", 1).html(
+      `<strong>${d.group}</strong><br>` +
+      `Feb 2025: <strong>${fmt(d.v25)}</strong><br>` +
+      `Feb 2026: <strong>${fmt(d.v26)}</strong><br>` +
+      `Change: <strong style="color:#ff8c7a">${fmtChg(d.chg)}</strong>`
+    );
+  })
+  .on("mousemove", event => {
+    tip.style("left", (event.clientX + 16) + "px")
+       .style("top",  (event.clientY - 12) + "px");
+  })
+  .on("mouseleave", function() {
+    d3.selectAll(".row").style("opacity", 1);
+    tip.style("opacity", 0);
+  });
+
+// "All Adults" highlight strip
+rows.filter(d => d.group === "All Adults")
+  .insert("rect", ":first-child")
+  .attr("x", -M.l)
+  .attr("width", W)
+  .attr("y", -ROW_H / 2)
+  .attr("height", ROW_H)
+  .attr("fill", "#faf8f5");
+
+// Connector lines — animate from v25 toward v26
+rows.append("line")
+  .attr("class", "connector")
+  .attr("x1", d => x(d.v25))
+  .attr("x2", d => x(d.v25))   // start collapsed
+  .attr("y1", 0).attr("y2", 0)
+  .attr("stroke", "#dedad5")
+  .attr("stroke-width", 2.5)
+  .attr("stroke-linecap", "round")
+  .transition()
+  .delay((d, i) => i * 45)
+  .duration(550)
+  .ease(d3.easeQuadOut)
+  .attr("x2", d => x(d.v26));
+
+// 2025 dots
+rows.append("circle")
+  .attr("cx", d => x(d.v25)).attr("cy", 0).attr("r", 0)
+  .attr("fill", "#3774F7")
+  .attr("stroke", "#fff").attr("stroke-width", 2)
+  .transition()
+  .delay((d, i) => i * 45 + 80)
+  .duration(280)
+  .attr("r", 7);
+
+// 2026 dots
+rows.append("circle")
+  .attr("cx", d => x(d.v26)).attr("cy", 0).attr("r", 0)
+  .attr("fill", "#FF8236")
+  .attr("stroke", "#fff").attr("stroke-width", 2)
+  .transition()
+  .delay((d, i) => i * 45 + 300)
+  .duration(280)
+  .attr("r", 7);
+
+// Value labels — 2026 to the left of left dot, 2025 to the right of right dot
+rows.append("text")
+  .attr("x", d => x(d.v25) + 10)
+  .attr("y", 0).attr("dy", "0.35em")
+  .attr("text-anchor", "start")
+  .attr("fill", "#656565")
+  .attr("font-size", 10.5)
+  .attr("font-weight", 600)
+  .attr("font-family", "Inter, system-ui, sans-serif")
+  .text(d => fmt(d.v25));
+
+rows.append("text")
+  .attr("x", d => x(d.v26) - 10)
+  .attr("y", 0).attr("dy", "0.35em")
+  .attr("text-anchor", "end")
+  .attr("fill", "#656565")
+  .attr("font-size", 10.5)
+  .attr("font-weight", 600)
+  .attr("font-family", "Inter, system-ui, sans-serif")
+  .text(d => fmt(d.v26));
+
+// Group labels (left-side, right-aligned)
+rows.append("text")
+  .attr("x", -12).attr("y", 0).attr("dy", "0.35em")
+  .attr("text-anchor", "end")
+  .attr("font-family", "Inter, system-ui, sans-serif")
+  .attr("font-size", d => d.group === "All Adults" ? 13 : 12.5)
+  .attr("font-weight", d => d.group === "All Adults" ? 600 : 400)
+  .attr("fill", "#222")
+  .text(d => d.group);
+
+// ── Bar chart (delta panel) ───────────────────────────────────────────────────
+const BAR_GAP  = 22;
+const BAR_PW   = 88;
+const BAR_X    = pw + BAR_GAP;
+const barScale = d3.scaleLinear().domain([0, 0.20]).range([0, BAR_PW]);
+
+// Divider line between dumbbell and bar panel
+g.append("line")
+  .attr("x1", BAR_X - 10).attr("x2", BAR_X - 10)
+  .attr("y1", 0).attr("y2", totalH)
+  .attr("stroke", "#eeebe6").attr("stroke-width", 1);
+
+// "CHANGE" column header
+g.append("text")
+  .attr("x", BAR_X)
+  .attr("y", totalH + 18)
+  .attr("text-anchor", "start")
+  .attr("fill", "#c4bfb8")
+  .attr("font-size", 10.5)
+  .attr("font-family", "Inter, system-ui, sans-serif")
+  .text("Change");
+
+// Bars — animate width from 0
+rows.append("rect")
+  .attr("x", BAR_X)
+  .attr("y", -5)
+  .attr("height", 10)
+  .attr("width", 0)
+  .attr("rx", 2)
+  .attr("fill", "#14090B")
+  .transition()
+  .delay((d, i) => i * 45 + 550)
+  .duration(450)
+  .ease(d3.easeQuadOut)
+  .attr("width", d => barScale(Math.abs(d.chg)));
+
+// Value label at end of bar
+rows.append("text")
+  .attr("x", d => BAR_X + barScale(Math.abs(d.chg)) + 6)
+  .attr("y", 0).attr("dy", "0.35em")
+  .attr("text-anchor", "start")
+  .attr("font-family", "Inter, system-ui, sans-serif")
+  .attr("font-size", 11)
+  .attr("font-weight", d => d.chg <= BIG_DROP ? 700 : 500)
+  .attr("fill", "#656565")
+  .attr("opacity", 0)
+  .text(d => fmtChg(d.chg))
+  .transition()
+  .delay(900)
+  .duration(350)
+  .attr("opacity", 1);
+</script>
+</body>
+</html>
