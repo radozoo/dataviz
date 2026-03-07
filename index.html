@@ -1,1 +1,420 @@
-<!DOCTYPE html><html><body><a href="mom-2026-09.html">MoM 2026-09</a></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Visualization Portfolio</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #0a0a0a;
+      --white: #f5f5f5;
+      --gray: #888;
+      --border: #e0e0e0;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      background: var(--white);
+      color: var(--black);
+      min-height: 100vh;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 3rem;
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      font-size: 1.25rem;
+      font-weight: 300;
+      letter-spacing: -0.01em;
+      text-decoration: none;
+      color: var(--black);
+    }
+
+    .nav-logo em {
+      font-style: normal;
+      font-weight: 700;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: var(--gray);
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--black); }
+
+    /* ── HERO ── */
+    .hero {
+      padding: 10rem 3rem 3rem;
+      max-width: 900px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .hero-label {
+      font-size: 0.72rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gray);
+      margin-bottom: 0.75rem;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.5rem, 6vw, 5rem);
+      font-weight: 300;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.75rem;
+    }
+
+    .hero h1 em {
+      font-style: normal;
+      font-weight: 700;
+    }
+
+    .hero-desc {
+      margin-top: 1rem;
+      max-width: 860px;
+      font-size: 1rem;
+      line-height: 1.7;
+      color: var(--gray);
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* ── GRID ── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--white);
+      text-decoration: none;
+      color: inherit;
+      display: block;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .card-thumb {
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: var(--black);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .card-thumb-inner {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #444;
+      transition: transform 0.5s ease;
+    }
+
+    /* Preview iframe */
+    .card-thumb iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 300%;
+      height: 300%;
+      transform: scale(0.333);
+      transform-origin: top left;
+      border: none;
+      pointer-events: none;
+      filter: grayscale(100%);
+      transition: filter 0.4s ease, transform 0.5s ease;
+    }
+
+    .card:hover .card-thumb iframe {
+      filter: grayscale(0%);
+      transform: scale(0.333) scale(1.05);
+    }
+
+    .card-thumb-overlay {
+      position: absolute;
+      inset: 0;
+      background: var(--black);
+      opacity: 0;
+      transition: opacity 0.35s ease;
+    }
+
+    .card:hover .card-thumb-overlay { opacity: 0.05; }
+
+    .card-body {
+      padding: 1.5rem 1.75rem 2rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .card-meta {
+      font-size: 0.68rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gray);
+      margin-bottom: 0.5rem;
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      line-height: 1.3;
+      margin-bottom: 0.5rem;
+    }
+
+    .card-desc {
+      font-size: 0.85rem;
+      color: var(--gray);
+      line-height: 1.6;
+    }
+
+    .card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.9rem;
+    }
+
+    .tag {
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gray);
+      border: 1px solid var(--border);
+      padding: 0.2rem 0.55rem;
+      border-radius: 2px;
+      transition: color 0.2s, border-color 0.2s, background 0.2s;
+    }
+
+    .card:hover .tag {
+      color: #fff;
+      background: #8389F9;
+      border-color: #8389F9;
+    }
+
+    .card-arrow {
+      position: absolute;
+      bottom: 1.75rem;
+      right: 1.75rem;
+      font-size: 1.1rem;
+      opacity: 0;
+      transform: translate(-4px, 4px);
+      transition: opacity 0.25s, transform 0.25s;
+    }
+
+    .card:hover .card-arrow {
+      opacity: 1;
+      transform: translate(0, 0);
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      padding: 4rem 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      gap: 2rem;
+    }
+
+    .footer-left p {
+      font-size: 0.78rem;
+      color: var(--gray);
+      letter-spacing: 0.05em;
+      margin-top: 0.4rem;
+    }
+
+    .footer-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 1rem;
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gray);
+    }
+
+    .social-links {
+      display: flex;
+      gap: 1.25rem;
+      align-items: center;
+    }
+
+    .social-links a {
+      color: var(--gray);
+      text-decoration: none;
+      display: flex;
+      transition: color 0.2s;
+    }
+
+    .social-links a:hover { color: var(--black); }
+
+    /* ── CONTACT ── */
+    .contact {
+      border-top: 1px solid var(--border);
+      padding: 6rem 3rem;
+      max-width: 900px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .contact-label {
+      font-size: 0.72rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gray);
+      margin-bottom: 1.25rem;
+    }
+
+    .contact-tagline {
+      font-size: 1rem;
+      color: var(--gray);
+      margin-bottom: 1.5rem;
+    }
+
+    .contact-email {
+      display: inline-block;
+      font-size: 1.8rem;
+      font-weight: 300;
+      letter-spacing: -0.01em;
+      color: var(--black);
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.2s;
+      margin-bottom: 2.5rem;
+    }
+
+    .contact-email:hover { border-bottom-color: var(--black); }
+
+    .contact-social {
+      display: flex;
+      justify-content: center;
+      gap: 2.25rem;
+    }
+
+    .contact-social a {
+      color: var(--gray);
+      text-decoration: none;
+      display: flex;
+      transition: color 0.2s;
+    }
+
+    .contact-social a:hover { color: var(--black); }
+
+    @media (max-width: 600px) {
+      nav { padding: 1.2rem 1.5rem; }
+      .hero { padding: 10rem 1.5rem 4rem; }
+      .section-header { padding: 3rem 1.5rem 1.5rem; }
+      footer { padding: 3rem 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a class="nav-logo" href="#">Raw <em>Signal.</em></a>
+    <ul class="nav-links">
+      <li><a href="#work">Work</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <p class="hero-label">Data Visualization / Learning Journal</p>
+    <h1>Raw <em>Signal.</em></h1>
+    <p class="hero-desc">
+      Hi, my name is Rado Zatovic. This is a learning journal. I use AI to turn data into visuals —<br>working towards a workflow where the only limit is imagination, not technology.
+    </p>
+  </section>
+
+  <!-- WORK -->
+  <div class="grid" id="work">
+
+    <!-- CARD 1 -->
+    <a class="card" href="mom-2026-09.html">
+      <div class="card-thumb">
+        <div class="card-thumb-inner">
+          <iframe src="mom-2026-09.html?preview=1" scrolling="no" tabindex="-1" aria-hidden="true"></iframe>
+        </div>
+        <div class="card-thumb-overlay"></div>
+      </div>
+      <div class="card-body">
+        <p class="card-meta">2026 &mdash; Analytics</p>
+        <h2 class="card-title">Trump's Approval: One Year In</h2>
+        <p class="card-desc">MakeoverMonday 2026 · Week 9. Trump's approval ratings across 13 demographic groups, February 2025 vs. February 2026. Built with Claude Code through iterative prompting — no predefined template, just back-and-forth.</p>
+        <div class="card-tags">
+          <span class="tag">Claude Code</span>
+          <span class="tag">Claude.ai</span>
+          <span class="tag">D3.js</span>
+          <span class="tag">HTML</span>
+        </div>
+      </div>
+      <span class="card-arrow">↗</span>
+    </a>
+
+  </div>
+
+  <!-- CONTACT -->
+  <section class="contact" id="contact">
+    <p class="contact-label">Get in touch</p>
+    <p class="contact-tagline">Have a question or just want to connect?</p>
+    <a href="mailto:radozoo@gmail.com" class="contact-email">radozoo@gmail.com</a>
+    <div class="contact-social">
+      <a href="https://www.linkedin.com/in/radoslav-zatovic-2b28b81b/" target="_blank" rel="noopener" aria-label="LinkedIn">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="3"/><path d="M7 10v7"/><circle cx="7" cy="7" r="1"/><path d="M11 10v7m0-4a3 3 0 0 1 6 0v4"/></svg>
+      </a>
+      <a href="https://x.com/radozoo" target="_blank" rel="noopener" aria-label="X">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+      </a>
+      <a href="https://www.instagram.com/radovizoo/" target="_blank" rel="noopener" aria-label="Instagram">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none"/></svg>
+      </a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <p style="font-size: 0.72rem; color: var(--gray); text-align: center; padding: 2rem;">&copy; 2026</p>
+  </footer>
+
+</body>
+</html>

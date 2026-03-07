@@ -10,13 +10,124 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+    :root {
+      --black: #0a0a0a;
+      --white: #f5f5f5;
+      --gray: #888;
+      --border: #e0e0e0;
+    }
+
+    /* ── SITE NAV ── */
+    .site-nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 3rem;
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .site-nav-logo {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 1.25rem;
+      font-weight: 300;
+      letter-spacing: -0.01em;
+      text-decoration: none;
+      color: var(--black);
+    }
+
+    .site-nav-logo em { font-style: normal; font-weight: 700; }
+
+    .site-nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    .site-nav-links a {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: var(--gray);
+      transition: color 0.2s;
+    }
+
+    .site-nav-links a:hover { color: var(--black); }
+
+    /* ── SITE FOOTER ── */
+    .site-footer {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      padding: 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      gap: 2rem;
+      background: var(--white);
+      border-top: 1px solid var(--border);
+      margin-top: 4rem;
+    }
+
+    .site-footer-left strong {
+      font-size: 0.85rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .site-footer-left p {
+      font-size: 0.78rem;
+      color: var(--gray);
+      letter-spacing: 0.05em;
+      margin-top: 0.4rem;
+    }
+
+    .site-footer-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 1rem;
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gray);
+    }
+
+    .social-links { display: flex; gap: 1.25rem; align-items: center; }
+
+    .social-links a {
+      color: var(--gray);
+      text-decoration: none;
+      display: flex;
+      transition: color 0.2s;
+    }
+
+    .social-links a:hover { color: var(--black); }
+
+    /* ── PREVIEW MODE (iframe thumbnail) ── */
+    body.preview-mode .site-nav { display: none; }
+    body.preview-mode .site-footer { display: none; }
+    body.preview-mode .page-content { padding-top: 20px; }
+
+    /* ── PAGE BODY ── */
     body {
-      background: #ede9e3;
+      background: #EAEAF9;
       font-family: 'Inter', system-ui, sans-serif;
       display: flex;
-      justify-content: center;
-      padding: 52px 20px 72px;
+      flex-direction: column;
       min-height: 100vh;
+    }
+
+    .page-content {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      padding: 120px 20px 72px;
     }
 
     .card {
@@ -73,6 +184,58 @@
       font-style: italic;
     }
 
+    /* ── ARTICLE SECTION ── */
+    .article {
+      max-width: 760px;
+      width: 100%;
+      margin: 3rem auto 0;
+      padding: 0 20px;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    }
+
+    .article-section {
+      border-top: 1px solid var(--border);
+      padding: 2.5rem 0;
+    }
+
+    .article-section:last-child {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .article-label {
+      font-size: 0.68rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gray);
+      margin-bottom: 0.75rem;
+    }
+
+    .article-section p {
+      font-size: 0.92rem;
+      line-height: 1.75;
+      color: #333;
+      max-width: 620px;
+    }
+
+    .article-built {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .article-tag {
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gray);
+      border: 1px solid var(--border);
+      padding: 0.2rem 0.55rem;
+      border-radius: 2px;
+    }
+
+    body.preview-mode .article { display: none; }
+
     #tooltip {
       position: fixed;
       pointer-events: none;
@@ -92,6 +255,16 @@
 </head>
 <body>
 
+<!-- SITE NAV -->
+<nav class="site-nav">
+  <a class="site-nav-logo" href="index.html">Raw <em>Signal.</em></a>
+  <ul class="site-nav-links">
+    <li><a href="index.html#work">← Work</a></li>
+    <li><a href="mailto:">Contact</a></li>
+  </ul>
+</nav>
+
+<div class="page-content">
 <div class="card">
   <div class="kicker">Presidential Approval &middot; One Year In</div>
   <h1>Trump Has Lost Support Across Every Group</h1>
@@ -110,7 +283,40 @@
   <div class="source">Source: Gallup &middot; Makeover Monday 2026 Week&nbsp;9</div>
 </div>
 
+</div><!-- /page-content -->
+
 <div id="tooltip"></div>
+
+<!-- ARTICLE -->
+<section class="article">
+  <div class="article-section">
+    <p class="article-label">Viz</p>
+    <p>This visual is my submission for MakeoverMonday 2026 Week 9 — a weekly data visualization challenge where participants reimagine an existing chart using the same dataset.</p>
+  </div>
+  <div class="article-section">
+    <p class="article-label">The data</p>
+    <p>The data covers Trump's approval ratings across 13 demographic groups, comparing February 2025 and February 2026. Every single group moved in the same direction.</p>
+  </div>
+  <div class="article-section">
+    <p class="article-label">The process</p>
+    <p>I handed the dataset to Claude Code with a simple brief — make something interesting. What followed was a back-and-forth: CC proposed the structure, I reacted, we iterated. The dot plot with delta bars emerged through that conversation, not from a predefined template.</p>
+    <p style="margin-top: 0.75rem;">This is the workflow I'm trying to figure out — using AI to close the gap between having an idea and actually executing it.</p>
+  </div>
+  <div class="article-section">
+    <p class="article-label">Built with</p>
+    <div class="article-built">
+      <span class="article-tag">Claude Code</span>
+      <span class="article-tag">Claude.ai</span>
+      <span class="article-tag">D3.js</span>
+      <span class="article-tag">HTML/CSS</span>
+    </div>
+  </div>
+</section>
+
+<!-- SITE FOOTER -->
+<footer>
+  <p style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 0.72rem; color: var(--gray); text-align: center; padding: 2rem;">&copy; 2026</p>
+</footer>
 
 <script>
 const data = [
@@ -372,6 +578,12 @@ rows.append("text")
   .delay(900)
   .duration(350)
   .attr("opacity", 1);
+</script>
+
+<script>
+  if (new URLSearchParams(window.location.search).get('preview')) {
+    document.body.classList.add('preview-mode');
+  }
 </script>
 </body>
 </html>
